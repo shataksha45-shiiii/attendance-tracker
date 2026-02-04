@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Journal.</title>
+    
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#fdfbf7">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3237/3237472.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    
+    <div class="ambient-light"></div>
+
+    <div id="app">
+      
+      <section id="login-view" class="center-container">
+        <div class="glass-panel login-panel">
+          <h1 class="title">Journal.</h1>
+          <p class="subtitle">Design your discipline.</p>
+          <button id="google-login-btn" class="apple-btn">
+            <i class="ri-google-fill"></i> Continue with Google
+          </button>
+        </div>
+      </section>
+
+      <nav id="sidebar" class="hidden">
+        <div class="sidebar-menu" style="margin-top: 40px;"> 
+          <button id="nav-dashboard" class="nav-item active" title="Dashboard">
+            <i class="ri-dashboard-line"></i>
+          </button>
+          <button id="nav-analytics" class="nav-item" title="Analytics">
+            <i class="ri-bar-chart-box-line"></i>
+          </button>
+        </div>
+
+        <div class="sidebar-footer">
+          <button id="logout-btn" class="nav-item" title="Log out">
+            <i class="ri-logout-box-line"></i>
+          </button>
+        </div>
+      </nav>
+
+      <div id="main-content" class="content-area hidden">
+        
+        <section id="dashboard-view" class="view-section">
+          <header>
+            <div class="header-content">
+              <div class="logo">Journal.</div>
+              <p class="date-display" id="current-date">Today</p>
+            </div>
+            
+            <div class="user-info">
+              <span id="user-name">Guest</span>
+            </div>
+          </header>
+
+          <main>
+            <div class="controls">
+              <h2>Your Classes</h2>
+              <button id="add-subject-btn" class="icon-btn-large">
+                <i class="ri-add-line"></i>
+              </button>
+            </div>
+            <div id="subjects-grid" class="grid"></div>
+          </main>
+        </section>
+
+        <section id="analytics-view" class="view-section hidden">
+          <header>
+            <div class="header-content">
+              <div class="logo">Analytics.</div>
+              <p>Attendance Strategy</p>
+            </div>
+          </header>
+
+          <main>
+            <div id="analytics-grid" class="analytics-grid"></div>
+          </main>
+        </section>
+
+      </div>
+    </div>
+
+    <div id="modal" class="modal hidden">
+      <div class="modal-content glass-modal">
+        <div class="modal-header-clean"><h3>New Subject</h3></div>
+        <input type="text" id="new-subject-name" placeholder="Subject Name (e.g. Physics)" autocomplete="off">
+        <div class="modal-actions">
+          <button id="cancel-modal" class="text-btn">Cancel</button>
+          <button id="confirm-add-subject" class="apple-btn-small">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="history-modal" class="modal hidden">
+      <div class="modal-content glass-modal history-modal-content">
+        <div class="modal-header">
+          <h3 id="history-subject-title">History</h3>
+          <button id="close-history-modal" class="icon-btn-ghost"><i class="ri-close-line"></i></button>
+        </div>
+        <div class="filters-container">
+          <div class="filters">
+            <button id="filter-all" class="filter-btn active">All</button>
+            <button id="filter-present" class="filter-btn">Present</button>
+            <button id="filter-absent" class="filter-btn">Absent</button>
+          </div>
+        </div>
+        <div id="subject-history-list" class="history-list-scroll"></div>
+        <div class="modal-footer">
+          <button id="clear-history-btn" class="danger-text-btn">Clear History</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="backdate-modal" class="modal hidden">
+      <div class="modal-content glass-modal backdate-content">
+        <div class="modal-header-clean">
+          <h3>Log Past Class</h3>
+          <button id="close-backdate-modal" class="icon-btn-ghost"><i class="ri-close-line"></i></button>
+        </div>
+        
+        <p class="modal-helper-text">Select the date:</p>
+        
+        <div id="inline-calendar-container"></div>
+
+        <div class="modal-actions" style="justify-content: space-between; margin-top: 25px;">
+          <button id="confirm-backdate-present" class="btn-action present" style="flex:1; margin-right:10px;">Was Present</button>
+          <button id="confirm-backdate-absent" class="btn-action absent" style="flex:1;">Was Absent</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
