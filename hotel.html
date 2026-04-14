@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Manager - Room Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ============================================
+           RESET & BASE STYLES
+           ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #F7F7F7;
+            color: #222222;
+            line-height: 1.5;
+        }
+
+        /* ============================================
+           NAVBAR
+           ============================================ */
+        .navbar {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid #EBEBEB;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-logo {
+            width: 40px;
+            height: 40px;
+            background-color: #FF385C;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #FFFFFF;
+            font-weight: 700;
+            font-size: 20px;
+        }
+
+        .navbar-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #222222;
+        }
+
+        .navbar-right {
+            font-size: 14px;
+            color: #717171;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .datetime {
+            font-weight: 500;
+            color: #222222;
+        }
+
+        /* ============================================
+           SUMMARY BAR
+           ============================================ */
+        .summary-bar {
+            background-color: #FFFFFF;
+            padding: 16px 24px;
+            border-bottom: 1px solid #EBEBEB;
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            flex-wrap: wrap;
+        }
+
+        .summary-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #717171;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-count {
+            font-size: 24px;
+            font-weight: 700;
+            color: #222222;
+        }
+
+        /* ============================================
+           FILTER BAR
+           ============================================ */
+        .filter-bar {
+            background-color: #FFFFFF;
+            padding: 16px 24px;
+            border-bottom: 1px solid #EBEBEB;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 10px 18px;
+            border: 1px solid #EBEBEB;
+            background-color: #FFFFFF;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #717171;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+            border-color: #FF385C;
+            color: #FF385C;
+        }
+
+        .filter-btn.active {
+            background-color: #FF385C;
+            color: #FFFFFF;
+            border-color: #FF385C;
+        }
+
+        /* ============================================
+           MAIN CONTAINER & GRID
+           ============================================ */
+        .main-container {
+            padding: 32px 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        /* ============================================
+           ROOM CARD
+           ============================================ */
+        .room-card {
+            background-color: #FFFFFF;
+            border: 1px solid #EBEBEB;
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .room-card:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .room-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #222222;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-available {
+            background-color: #E8F7F5;
+            color: #00A699;
+        }
+
+        .badge-occupied {
+            background-color: #FFE8E8;
+            color: #FF385C;
+        }
+
+        .badge-needs-cleaning {
+            background-color: #FFF3E0;
+            color: #FFB400;
+        }
+
+        .badge-reserved {
+            background-color: #F0E8FF;
+            color: #7B61FF;
+        }
+
+        .card-guest-info {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #EBEBEB;
+        }
+
+        .guest-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222222;
+            margin-bottom: 4px;
+        }
+
+        .check-in-time {
+            font-size: 12px;
+            color: #717171;
+        }
+
+        .view-details-link {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #FF385C;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .view-details-link:hover {
+            color: #E6184D;
+        }
+
+        /* ============================================
+           MODAL OVERLAY & BACKDROP
+           ============================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            background-color: #FFFFFF;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #EBEBEB;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #222222;
+        }
+
+        .modal-close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #717171;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close-btn:hover {
+            color: #222222;
+        }
+
+        .modal-content {
+            padding: 24px;
+        }
+
+        /* ============================================
+           FORM ELEMENTS
+           ============================================ */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #222222;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #EBEBEB;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #FF385C;
+            box-shadow: 0 0 0 3px rgba(255, 56, 92, 0.1);
+        }
+
+        select.form-control {
+            cursor: pointer;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 12px 18px;
+            background-color: #F7F7F7;
+            border: 1px solid #EBEBEB;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: #222222;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .file-input-label:hover {
+            background-color: #EBEBEB;
+        }
+
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .aadhaar-preview {
+            margin-top: 12px;
+            width: 100%;
+            max-width: 200px;
+            border-radius: 8px;
+            border: 1px solid #EBEBEB;
+        }
+
+        /* ============================================
+           BUTTONS
+           ============================================ */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+            flex-direction: column;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background-color: #FF385C;
+            color: #FFFFFF;
+        }
+
+        .btn-primary:hover {
+            background-color: #E6184D;
+        }
+
+        .btn-secondary {
+            background-color: #F7F7F7;
+            color: #222222;
+            border: 1px solid #EBEBEB;
+        }
+
+        .btn-secondary:hover {
+            background-color: #EBEBEB;
+        }
+
+        .btn-danger {
+            background-color: #FFE8E8;
+            color: #FF385C;
+            border: 1px solid #FF385C;
+        }
+
+        .btn-danger:hover {
+            background-color: #FFD6D9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* ============================================
+           STATUS SECTION IN MODAL
+           ============================================ */
+        .status-section {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #EBEBEB;
+        }
+
+        .current-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .status-label {
+            font-size: 12px;
+            color: #717171;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        /* ============================================
+           GUEST DETAILS SECTION
+           ============================================ */
+        .guest-details-section {
+            margin-bottom: 24px;
+            padding: 16px;
+            background-color: #F7F7F7;
+            border-radius: 8px;
+        }
+
+        .guest-details-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .guest-details-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222222;
+        }
+
+        .edit-btn {
+            background: none;
+            border: none;
+            color: #FF385C;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.2s ease;
+        }
+
+        .edit-btn:hover {
+            color: #E6184D;
+        }
+
+        .guest-detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+
+        .guest-detail-label {
+            color: #717171;
+            font-weight: 500;
+        }
+
+        .guest-detail-value {
+            color: #222222;
+            font-weight: 600;
+        }
+
+        /* ============================================
+           EDIT MODE
+           ============================================ */
+        .guest-details-section.edit-mode {
+            background-color: #FFFFFF;
+            border: 1px solid #EBEBEB;
+        }
+
+        /* ============================================
+           EMPTY STATE
+           ============================================ */
+        .empty-state {
+            text-align: center;
+            padding: 60px 24px;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .empty-state-text {
+            font-size: 16px;
+            color: #717171;
+            margin-bottom: 8px;
+        }
+
+        /* ============================================
+           RESPONSIVE DESIGN
+           ============================================ */
+        @media (max-width: 768px) {
+            .room-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .navbar {
+                padding: 12px 16px;
+            }
+
+            .main-container {
+                padding: 24px 16px;
+            }
+
+            .summary-bar {
+                gap: 16px;
+                padding: 12px 16px;
+            }
+
+            .filter-bar {
+                padding: 12px 16px;
+                gap: 8px;
+            }
+
+            .modal {
+                width: 95%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .room-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .summary-bar {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .summary-item {
+                flex-direction: row;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            .room-number {
+                font-size: 24px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="navbar-left">
+            <div class="navbar-logo">🏨</div>
+            <div class="navbar-title">Hotel Manager</div>
+        </div>
+        <div class="navbar-right">
+            <span>Today:</span>
+            <span class="datetime" id="liveDateTime"></span>
+        </div>
+    </nav>
+
+    <!-- SUMMARY BAR -->
+    <div class="summary-bar">
+        <div class="summary-item">
+            <div class="summary-label">Available</div>
+            <div class="summary-count" id="countAvailable">0</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Occupied</div>
+            <div class="summary-count" id="countOccupied">0</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Needs Cleaning</div>
+            <div class="summary-count" id="countNeedsCleaning">0</div>
+        </div>
+        <div class="summary-item">
+            <div class="summary-label">Reserved</div>
+            <div class="summary-count" id="countReserved">0</div>
+        </div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="available">Available</button>
+        <button class="filter-btn" data-filter="occupied">Occupied</button>
+        <button class="filter-btn" data-filter="needs-cleaning">Needs Cleaning</button>
+        <button class="filter-btn" data-filter="reserved">Reserved</button>
+    </div>
+
+    <!-- MAIN CONTAINER -->
+    <div class="main-container">
+        <div class="room-grid" id="roomGrid">
+            <!-- Room cards will be dynamically inserted here -->
+        </div>
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <div class="empty-state-icon">🚪</div>
+            <div class="empty-state-text">No rooms match your filter</div>
+        </div>
+    </div>
+
+    <!-- MODAL OVERLAY -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal" id="roomModal">
+            <div class="modal-header">
+                <div class="modal-title">Room <span id="modalRoomNumber"></span></div>
+                <button class="modal-close-btn" onclick="closeModal()">✕</button>
+            </div>
+            <div class="modal-content">
+                <!-- Status Section -->
+                <div class="status-section">
+                    <div class="current-status">
+                        <div class="status-label">Status:</div>
+                        <div class="status-badge" id="modalStatusBadge"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Change Status</label>
+                        <select class="form-control" id="statusSelect" onchange="onStatusChange()">
+                            <option value="available">Available</option>
+                            <option value="occupied">Occupied</option>
+                            <option value="needs-cleaning">Needs Cleaning</option>
+                            <option value="reserved">Reserved</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Guest Details Section (shown only when Occupied or Reserved) -->
+                <div id="guestDetailsContainer" style="display: none;">
+                    <div class="guest-details-section" id="guestDetailsSection">
+                        <div class="guest-details-header">
+                            <div class="guest-details-title">Guest Information</div>
+                            <button class="edit-btn" id="editDetailsBtn" onclick="toggleEditMode()">Edit</button>
+                        </div>
+                        <div id="guestDetailsView">
+                            <!-- Guest details will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Guest Details Form -->
+                    <div id="guestDetailsForm" style="display: none;">
+                        <div class="form-group">
+                            <label class="form-label" for="guestName">Guest Full Name</label>
+                            <input type="text" class="form-control" id="guestName" placeholder="Enter guest name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="guestPhone">Phone Number</label>
+                            <input type="tel" class="form-control" id="guestPhone" placeholder="Enter phone number">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="checkInDateTime">Check-in Date & Time</label>
+                            <input type="datetime-local" class="form-control" id="checkInDateTime">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Aadhaar Card Image</label>
+                            <div class="file-input-wrapper">
+                                <label class="file-input-label">Upload Image</label>
+                                <input type="file" id="aadhaarUpload" accept="image/*" onchange="handleAadhaarUpload()">
+                            </div>
+                            <img id="aadhaarPreview" class="aadhaar-preview" style="display: none;">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="button-group">
+                    <button class="btn btn-primary" id="saveBtn" onclick="saveRoomDetails()">Save Changes</button>
+                    <button class="btn btn-danger" id="checkOutBtn" style="display: none;" onclick="checkOutRoom()">Check Out</button>
+                    <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // STATE MANAGEMENT
+        // ============================================
+        const ROOM_NUMBERS = Array.from({ length: 12 }, (_, i) => 18 + i); // 18-30
+        const STATUSES = ['available', 'occupied', 'needs-cleaning', 'reserved'];
+        
+        let rooms = {};
+        let currentFilter = 'all';
+        let currentRoomInModal = null;
+        let isEditMode = false;
+
+        // Initialize rooms data from localStorage or create defaults
+        function initializeRooms() {
+            const saved = localStorage.getItem('hotelRooms');
+            if (saved) {
+                rooms = JSON.parse(saved);
+            } else {
+                // Default initialization
+                ROOM_NUMBERS.forEach(num => {
+                    rooms[num] = {
+                        status: 'available',
+                        guestName: '',
+                        guestPhone: '',
+                        checkInDateTime: '',
+                        aadhaarImage: null
+                    };
+                });
+                saveRoomsToStorage();
+            }
+        }
+
+        // Save rooms to localStorage
+        function saveRoomsToStorage() {
+            localStorage.setItem('hotelRooms', JSON.stringify(rooms));
+        }
+
+        // ============================================
+        // UTILITY FUNCTIONS
+        // ============================================
+
+        // Format date/time for display
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return '';
+            const date = new Date(dateTimeString);
+            return date.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            const badges = {
+                available: '<div class="status-badge badge-available">Available</div>',
+                occupied: '<div class="status-badge badge-occupied">Occupied</div>',
+                'needs-cleaning': '<div class="status-badge badge-needs-cleaning">Needs Cleaning</div>',
+                reserved: '<div class="status-badge badge-reserved">Reserved</div>'
+            };
+            return badges[status] || '';
+        }
+
+        // Update live date/time in navbar
+        function updateLiveDateTime() {
+            const now = new Date();
+            const dateStr = now.toLocaleString('en-US', {
+                weekday: 'short',
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('liveDateTime').textContent = dateStr;
+        }
+
+        // Update summary counts
+        function updateSummary() {
+            const counts = {
+                available: 0,
+                occupied: 0,
+                'needs-cleaning': 0,
+                reserved: 0
+            };
+
+            ROOM_NUMBERS.forEach(num => {
+                const status = rooms[num].status;
+                counts[status]++;
+            });
+
+            document.getElementById('countAvailable').textContent = counts.available;
+            document.getElementById('countOccupied').textContent = counts.occupied;
+            document.getElementById('countNeedsCleaning').textContent = counts['needs-cleaning'];
+            document.getElementById('countReserved').textContent = counts.reserved;
+        }
+
+        // ============================================
+        // RENDERING
+        // ============================================
+
+        // Render all room cards
+        function renderRooms() {
+            const grid = document.getElementById('roomGrid');
+            const emptyState = document.getElementById('emptyState');
+            grid.innerHTML = '';
+            let hasVisibleRooms = false;
+
+            ROOM_NUMBERS.forEach(num => {
+                const room = rooms[num];
+                
+                // Check filter
+                if (currentFilter !== 'all' && room.status !== currentFilter) {
+                    return;
+                }
+
+                hasVisibleRooms = true;
+                const card = createRoomCard(num, room);
+                grid.appendChild(card);
+            });
+
+            emptyState.style.display = hasVisibleRooms ? 'none' : 'flex';
+        }
+
+        // Create a room card element
+        function createRoomCard(roomNumber, room) {
+            const card = document.createElement('div');
+            card.className = 'room-card';
+            card.onclick = () => openModal(roomNumber);
+
+            let guestInfo = '';
+            if (room.status === 'occupied' || room.status === 'reserved') {
+                guestInfo = `
+                    <div class="card-guest-info">
+                        <div class="guest-name">${room.guestName || 'Unknown'}</div>
+                        ${room.checkInDateTime ? `<div class="check-in-time">Check-in: ${formatDateTime(room.checkInDateTime)}</div>` : ''}
+                    </div>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="room-number">${roomNumber}</div>
+                    ${getStatusBadge(room.status)}
+                </div>
+                ${guestInfo}
+                <a href="#" class="view-details-link">View Details →</a>
+            `;
+
+            return card;
+        }
+
+        // ============================================
+        // MODAL FUNCTIONS
+        // ============================================
+
+        // Open modal for a room
+        function openModal(roomNumber) {
+            currentRoomInModal = roomNumber;
+            const room = rooms[roomNumber];
+            isEditMode = false;
+
+            // Set room number
+            document.getElementById('modalRoomNumber').textContent = roomNumber;
+
+            // Set status badge and dropdown
+            document.getElementById('modalStatusBadge').innerHTML = getStatusBadge(room.status);
+            document.getElementById('statusSelect').value = room.status;
+
+            // Show/hide guest details section based on status
+            const guestDetailsContainer = document.getElementById('guestDetailsContainer');
+            if (room.status === 'occupied' || room.status === 'reserved') {
+                guestDetailsContainer.style.display = 'block';
+                populateGuestDetails(room);
+                showGuestDetailsView();
+            } else {
+                guestDetailsContainer.style.display = 'none';
+            }
+
+            // Show/hide check-out button
+            document.getElementById('checkOutBtn').style.display = room.status === 'occupied' ? 'block' : 'none';
+
+            // Show modal
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            currentRoomInModal = null;
+            isEditMode = false;
+        }
+
+        // Close modal when clicking overlay
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Handle status change
+        function onStatusChange() {
+            const newStatus = document.getElementById('statusSelect').value;
+            const room = rooms[currentRoomInModal];
+
+            // If changing TO occupied or reserved, show guest form
+            if ((newStatus === 'occupied' || newStatus === 'reserved') && room.status !== newStatus) {
+                const guestDetailsContainer = document.getElementById('guestDetailsContainer');
+                guestDetailsContainer.style.display = 'block';
+                
+                // Clear previous data if switching from available/needs-cleaning
+                if (room.status === 'available' || room.status === 'needs-cleaning') {
+                    room.guestName = '';
+                    room.guestPhone = '';
+                    room.checkInDateTime = '';
+                    room.aadhaarImage = null;
+                }
+                
+                showGuestDetailsForm();
+                isEditMode = true;
+            } else if (newStatus === 'available' || newStatus === 'needs-cleaning') {
+                // Changing away from occupied/reserved
+                document.getElementById('guestDetailsContainer').style.display = 'none';
+            } else {
+                showGuestDetailsView();
+            }
+
+            // Update badge
+            document.getElementById('modalStatusBadge').innerHTML = getStatusBadge(newStatus);
+
+            // Update check-out button visibility
+            document.getElementById('checkOutBtn').style.display = newStatus === 'occupied' ? 'block' : 'none';
+        }
+
+        // Populate guest details view
+        function populateGuestDetails(room) {
+            const viewDiv = document.getElementById('guestDetailsView');
+            viewDiv.innerHTML = `
+                <div class="guest-detail-row">
+                    <span class="guest-detail-label">Name:</span>
+                    <span class="guest-detail-value">${room.guestName || '—'}</span>
+                </div>
+                <div class="guest-detail-row">
+                    <span class="guest-detail-label">Phone:</span>
+                    <span class="guest-detail-value">${room.guestPhone || '—'}</span>
+                </div>
+                <div class="guest-detail-row">
+                    <span class="guest-detail-label">Check-in:</span>
+                    <span class="guest-detail-value">${room.checkInDateTime ? formatDateTime(room.checkInDateTime) : '—'}</span>
+                </div>
+                ${room.aadhaarImage ? `<div class="guest-detail-row"><img src="${room.aadhaarImage}" class="aadhaar-preview" style="margin-top: 8px; width: 100%; max-width: 200px;"></div>` : ''}
+            `;
+        }
+
+        // Show guest details view
+        function showGuestDetailsView() {
+            document.getElementById('guestDetailsView').style.display = 'block';
+            document.getElementById('guestDetailsForm').style.display = 'none';
+            document.getElementById('guestDetailsSection').classList.remove('edit-mode');
+            document.getElementById('editDetailsBtn').style.display = 'block';
+        }
+
+        // Show guest details form
+        function showGuestDetailsForm() {
+            const room = rooms[currentRoomInModal];
+            document.getElementById('guestName').value = room.guestName || '';
+            document.getElementById('guestPhone').value = room.guestPhone || '';
+            document.getElementById('checkInDateTime').value = room.checkInDateTime || '';
+            
+            if (room.aadhaarImage) {
+                document.getElementById('aadhaarPreview').src = room.aadhaarImage;
+                document.getElementById('aadhaarPreview').style.display = 'block';
+            } else {
+                document.getElementById('aadhaarPreview').style.display = 'none';
+            }
+
+            document.getElementById('guestDetailsView').style.display = 'none';
+            document.getElementById('guestDetailsForm').style.display = 'block';
+            document.getElementById('guestDetailsSection').classList.add('edit-mode');
+            document.getElementById('editDetailsBtn').style.display = 'none';
+        }
+
+        // Toggle edit mode
+        function toggleEditMode() {
+            isEditMode ? showGuestDetailsView() : showGuestDetailsForm();
+            isEditMode = !isEditMode;
+        }
+
+        // Handle Aadhaar image upload
+        function handleAadhaarUpload() {
+            const file = document.getElementById('aadhaarUpload').files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64 = e.target.result;
+                rooms[currentRoomInModal].aadhaarImage = base64;
+                document.getElementById('aadhaarPreview').src = base64;
+                document.getElementById('aadhaarPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Save room details
+        function saveRoomDetails() {
+            const room = rooms[currentRoomInModal];
+            const newStatus = document.getElementById('statusSelect').value;
+
+            room.status = newStatus;
+
+            // Save guest details if status is occupied or reserved
+            if (newStatus === 'occupied' || newStatus === 'reserved') {
+                room.guestName = document.getElementById('guestName').value;
+                room.guestPhone = document.getElementById('guestPhone').value;
+                room.checkInDateTime = document.getElementById('checkInDateTime').value;
+                // aadhaarImage is already saved on upload
+            } else {
+                // Clear guest data for other statuses
+                room.guestName = '';
+                room.guestPhone = '';
+                room.checkInDateTime = '';
+                room.aadhaarImage = null;
+            }
+
+            saveRoomsToStorage();
+            updateSummary();
+            renderRooms();
+            closeModal();
+        }
+
+        // Check out room
+        function checkOutRoom() {
+            const confirmed = confirm('Are you sure you want to check out this guest? The room will be marked as "Needs Cleaning".');
+            if (!confirmed) return;
+
+            const room = rooms[currentRoomInModal];
+            room.status = 'needs-cleaning';
+            room.guestName = '';
+            room.guestPhone = '';
+            room.checkInDateTime = '';
+            room.aadhaarImage = null;
+
+            saveRoomsToStorage();
+            updateSummary();
+            renderRooms();
+            closeModal();
+        }
+
+        // ============================================
+        // FILTER FUNCTIONS
+        // ============================================
+
+        // Set filter
+        function setFilter(filter) {
+            currentFilter = filter;
+
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderRooms();
+        }
+
+        // Attach filter button listeners
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                setFilter(this.dataset.filter);
+            });
+        });
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            initializeRooms();
+            updateLiveDateTime();
+            setInterval(updateLiveDateTime, 1000); // Update every second
+            updateSummary();
+            renderRooms();
+        });
+    </script>
+</body>
+</html>
