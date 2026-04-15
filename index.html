@@ -6,6 +6,9 @@
     <title>Hotel Manager - Room Management System</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
+    <!-- Socket.io for real-time sync -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    
     <style>
         /* ============================================
            RESET & BASE STYLES
@@ -760,6 +763,58 @@
 
     <script>
         // ============================================
+        // REAL-TIME SYNC SETUP
+        // ============================================
+        let socket = null;
+        let isConnected = false;
+
+        // Connect to server
+        function connectToServer() {
+            // Connect to backend server (will work with local dev or deployed backend)
+            const serverUrl = window.location.hostname === 'localhost' 
+                ? 'http://localhost:3001' 
+                : window.location.origin;
+            
+            socket = io(serverUrl, {
+                reconnection: true,
+                reconnectionDelay: 1000,
+                reconnectionDelayMax: 5000,
+                reconnectionAttempts: 5
+            });
+
+            socket.on('connect', () => {
+                console.log('Connected to server');
+                isConnected = true;
+            });
+
+            socket.on('rooms-data', (data) => {
+                console.log('Received rooms data:', data);
+                rooms = data;
+                isInitializing = false;
+                updateSummary();
+                renderRooms();
+            });
+
+            socket.on('rooms-updated', (data) => {
+                if (!isInitializing) {
+                    console.log('Rooms updated by another user');
+                    rooms = data;
+                    updateSummary();
+                    renderRooms();
+                }
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from server');
+                isConnected = false;
+            });
+
+            socket.on('connect_error', (error) => {
+                console.warn('Connection error:', error);
+            });
+        }
+
+        // ============================================
         // STATE MANAGEMENT
         // ============================================
         const ROOM_NUMBERS = [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30]; // 12 rooms (no 29)
@@ -769,30 +824,61 @@
         let currentFilter = 'all';
         let currentRoomInModal = null;
         let isEditMode = false;
+        let isInitializing = true;
 
-        // Initialize rooms data from localStorage or create defaults
+        // Initialize rooms data
         function initializeRooms() {
+            connectToServer();
+            
+            // If connection fails, load from localStorage
+            setTimeout(() => {
+                if (isInitializing) {
+                    fallbackToLocalStorage();
+                }
+            }, 3000);
+        }
+
+        // Fallback to localStorage if server unavailable
+        function fallbackToLocalStorage() {
+            console.log('Using localStorage fallback');
             const saved = localStorage.getItem('hotelRooms');
             if (saved) {
                 rooms = JSON.parse(saved);
             } else {
-                // Default initialization
-                ROOM_NUMBERS.forEach(num => {
-                    rooms[num] = {
-                        status: 'available',
-                        guestName: '',
-                        guestPhone: '',
-                        checkInDateTime: '',
-                        aadhaarImage: null
-                    };
-                });
-                saveRoomsToStorage();
+                createDefaultRooms();
             }
+            isInitializing = false;
+            updateSummary();
+            renderRooms();
         }
 
-        // Save rooms to localStorage
+        // Create default rooms
+        function createDefaultRooms() {
+            ROOM_NUMBERS.forEach(num => {
+                rooms[num] = {
+                    status: 'available',
+                    guestName: '',
+                    guestPhone: '',
+                    checkInDateTime: '',
+                    aadhaarImage: null
+                };
+            });
+        }
+
+        // Save rooms to server or localStorage
         function saveRoomsToStorage() {
             localStorage.setItem('hotelRooms', JSON.stringify(rooms));
+            
+            if (isConnected && socket) {
+                socket.emit('update-rooms', rooms);
+            } else {
+                // Fallback to REST API if Socket.io not available
+                fetch('/api/rooms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(rooms)
+                }).catch(err => console.log('API save failed (this is OK):', err));
+            }
         }
 
         // ============================================
@@ -1138,11 +1224,9 @@
 
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', function() {
-            initializeRooms();
             updateLiveDateTime();
             setInterval(updateLiveDateTime, 1000); // Update every second
-            updateSummary();
-            renderRooms();
+            initializeRooms(); // Firebase async initialization
         });
     </script>
 </body>
